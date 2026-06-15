@@ -156,6 +156,45 @@ core.register_entity("digisprite:image", {
         shaded = true,
         static_save = false,
     },
+
+    on_step = function(self, dtime)
+        self._dtime = (self._dtime or 0) + dtime
+        if self._dtime < 1 then return end
+        self._dtime = 0
+
+        local observers = {}
+        local pos = self.object:get_pos()
+        for _, player in ipairs(core.get_connected_players()) do
+            local pname = player:get_player_name()
+            local ppos = player:get_pos()
+            local distance = vector.distance(pos, ppos)
+
+            if distance < 30 then
+                observers[pname] = true
+            elseif distance < 100 then
+                local rc = core.raycast(ppos, pos, false, false)
+                local blocks = false
+                for pt in rc do
+                    if pt.type == "node" then
+                        local npos = pt.under
+                        local node = core.get_node(npos)
+                        local ndef = core.registered_nodes[node.name]
+
+                        if not ndef.sunlight_propagates then
+                            blocks = true
+                            break
+                        end
+                    end
+                end
+
+                if not blocks then
+                    observers[pname] = true
+                end
+            end
+        end
+
+        self.object:set_observers(observers)
+    end,
 })
 
 core.register_node("digisprite:digisprite", {
