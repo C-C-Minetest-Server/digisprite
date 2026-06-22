@@ -180,7 +180,7 @@ core.register_entity("digisprite:image", {
                         local node = core.get_node(npos)
                         local ndef = core.registered_nodes[node.name]
 
-                        if not ndef.sunlight_propagates then
+                        if ndef and not ndef.sunlight_propagates then
                             blocks = true
                             break
                         end
