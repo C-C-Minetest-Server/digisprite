@@ -166,13 +166,17 @@ core.register_entity("digisprite:image", {
         local pos = self.object:get_pos()
         for _, player in ipairs(core.get_connected_players()) do
             local pname = player:get_player_name()
-            local ppos = player:get_pos()
-            local distance = vector.distance(pos, ppos)
+            local pprop = player:get_properties()
+            local vpos = vector.add(
+                vector.add(player:get_pos(), player:get_eye_offset()[1]),
+                { x = 0, y = pprop.eye_height, z = 0 }
+            )
+            local distance = vector.distance(pos, vpos)
 
             if distance < 30 then
                 observers[pname] = true
             elseif distance < 100 then
-                local rc = core.raycast(ppos, pos, false, false)
+                local rc = core.raycast(vpos, pos, false, false)
                 local blocks = false
                 for pt in rc do
                     if pt.type == "node" then
